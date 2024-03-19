@@ -9,3 +9,7 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode("p", "Hello world", props={"class": "px-2", "id": "test"})
 
         self.assertEqual(node.props_to_html(), ' class="px-2" id="test"')
+
+
+if __name__ == "__main__":
+    unittest.main()
