@@ -1,3 +1,5 @@
+import re
+
 from leafnode import LeafNode
 
 
@@ -91,3 +93,11 @@ def is_text_node_valid(node, delimiter, text_type):
                     word_stack.append(i)
 
     return len(stack) == 0 and len(word_stack) == 0, result
+
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+
+
+def extract_markdown_links(text):
+    return re.findall(r"\[(.*?)\]\((.*?)\)", text)
