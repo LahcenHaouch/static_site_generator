@@ -7,7 +7,7 @@ from textnode import (
     extract_markdown_links,
     split_nodes_image,
     split_nodes_link,
-    text_to_textnodes,
+    text_to_text_nodes,
 )
 
 
@@ -110,11 +110,9 @@ class TestTextNode(unittest.TestCase):
         )
 
     def test_text_to_text_nodes(self):
-        nodes = text_to_textnodes(
+        nodes = text_to_text_nodes(
             "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
         )
-
-        print("nodes", nodes)
 
         self.assertEqual(
             nodes,

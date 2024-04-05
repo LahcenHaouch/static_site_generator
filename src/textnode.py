@@ -171,7 +171,7 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 
-def text_to_textnodes(text):
+def text_to_text_nodes(text):
     with_code_nodes = split_nodes_delimiter([TextNode(text, "text")], "`", "code")
     with_bold_nodes = split_nodes_delimiter(with_code_nodes, "**", "bold")
     with_italic_nodes = split_nodes_delimiter(with_bold_nodes, "*", "italic")
