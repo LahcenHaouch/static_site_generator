@@ -47,8 +47,13 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     result = []
 
     for old_node in old_nodes:
-        if not isinstance(old_node, TextNode):
-            result.append([old_node])
+        if len(old_node.text) == 0:
+            continue
+
+        if (not isinstance(old_node, TextNode)) or (
+            isinstance(old_node, TextNode) and old_node.text_type != "text"
+        ):
+            result.extend([old_node])
             continue
 
         is_valid, words = is_text_node_valid(old_node, delimiter, text_type)
@@ -61,36 +66,58 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return result
 
 
+def is_before_delimiter(text, current_index, delimiter):
+    delimiter_length = len(delimiter)
+    next_index = current_index + 1
+
+    if current_index + delimiter_length < len(text):
+        for j in range(delimiter_length):
+            if text[next_index + j] != delimiter[j]:
+                return False
+        return True
+    else:
+        return False
+
+
 def is_text_node_valid(node, delimiter, text_type):
     stack = []
     word_stack = []
     result = []
 
     text = node.text
-    for i in range(len(text)):
-        char = text[i]
+
+    i = 0
+    while i < len(text):
         in_delimiter = len(stack) >= 1
 
-        if char == delimiter:
-            if in_delimiter:
-                prev_index = stack.pop()
-                result.append(TextNode(text[prev_index:i], text_type))
+        if in_delimiter:
+            if is_before_delimiter(text, i, delimiter):
+                prev = stack.pop()
 
+                result.append(TextNode(text[prev : i + 1], text_type))
+                i += len(delimiter) + 1
             else:
-                stack.append(i + 1)
+                i += 1
+
         else:
-            if in_delimiter:
-                continue
-            else:
-                if (
-                    i + 1 >= len(text)
-                    or text[i + 1] == delimiter
-                    and len(word_stack) >= 1
-                ):
+            if is_before_delimiter(text, i, delimiter):
+                stack.append(i + len(delimiter) + 1)
+
+                if len(word_stack) >= 1:
                     prev = word_stack.pop()
+
                     result.append(TextNode(text[prev : i + 1], "text"))
-                elif len(word_stack) == 0:
+
+                i += len(delimiter) + 1
+            else:
+                if len(word_stack) == 0:
+
                     word_stack.append(i)
+                i += 1
+
+    if len(word_stack) >= 1:
+        prev = word_stack.pop()
+        result.append(TextNode(text[prev : len(text)], "text"))
 
     return len(stack) == 0 and len(word_stack) == 0, result
 
@@ -103,7 +130,6 @@ def extract_markdown_links(text):
     return re.findall(r"\[(.*?)\]\((.*?)\)", text)
 
 
-# each node is a TextNode
 def split_nodes_image(old_nodes):
     new_nodes = []
 
@@ -120,12 +146,12 @@ def split_nodes_image(old_nodes):
                 new_nodes.append(TextNode(image[0], "image", image[1]))
                 text_to_split = text_split[1]
 
-    print("new_nodes", new_nodes)
+            if len(text_to_split) > 0:
+                new_nodes.append(TextNode(text_to_split, "text"))
 
     return new_nodes
 
 
-# each node is a TextNode
 def split_nodes_link(old_nodes):
     new_nodes = []
 
@@ -143,3 +169,11 @@ def split_nodes_link(old_nodes):
                 text_to_split = text_split[1]
 
     return new_nodes
+
+
+def text_to_textnodes(text):
+    with_code_nodes = split_nodes_delimiter([TextNode(text, "text")], "`", "code")
+    with_bold_nodes = split_nodes_delimiter(with_code_nodes, "**", "bold")
+    with_italic_nodes = split_nodes_delimiter(with_bold_nodes, "*", "italic")
+    with_images = split_nodes_image(with_italic_nodes)
+    return split_nodes_link(with_images)
