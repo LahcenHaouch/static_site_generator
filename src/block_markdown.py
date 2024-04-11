@@ -18,9 +18,9 @@ def block_to_block_type(block):
         return "quote"
 
     elif is_block_unordered_list(block):
-        return "unordored_list"
+        return "unordered_list"
     elif is_block_ordered_list(block):
-        return "ordered-list"
+        return "ordered_list"
 
     return "paragraph"
 
@@ -70,7 +70,7 @@ def is_block_unordered_list(block):
 def is_block_ordered_list(block):
     lines = block.split("\n")
 
-    counter = 0
+    counter = 1
     for line in lines:
         if len(line) < 2 or f"{line[0]}{line[1]}" != f"{counter}.":
             return False
