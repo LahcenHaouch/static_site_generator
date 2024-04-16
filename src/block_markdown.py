@@ -1,5 +1,7 @@
 import re
 
+from htmlnode import HTMLNode
+
 
 def markdown_to_blocks(markdown):
     stripped_markdown = markdown.strip()
@@ -8,8 +10,9 @@ def markdown_to_blocks(markdown):
 
 
 def block_to_block_type(block):
-    if is_block_heading(block):
-        return "heading"
+    is_heading, level = is_block_heading(block)
+    if is_heading:
+        return "heading", level
 
     elif is_block_code_block(block):
         return "code"
@@ -31,11 +34,12 @@ def is_block_heading(block):
 
     max = 7 if len(block) < 7 else len(block)
 
+    level = 0
     for i in range(1, max):
         if block[i] == " ":
-            return True
-
-    return False
+            return True, level
+        level += 1
+    return False, None
 
 
 def is_block_code_block(block):
@@ -78,3 +82,62 @@ def is_block_ordered_list(block):
         counter += 1
 
     return True
+
+
+def quote_to_html(quote):
+    return HTMLNode("blockquote", quote[1:])
+
+
+def list_to_html(block, list_type):
+    tag = "ul"
+    if list_type == "ordered_list":
+        tag = "ol"
+
+    node = HTMLNode(tag, children=[])
+
+    lines = block.split("\n")
+
+    for line in lines:
+        node.children.append(HTMLNode("li", line[1:]))
+
+    return node
+
+
+def code_to_html(block):
+    node = HTMLNode("pre", children=[])
+    node.children.append(HTMLNode("code", block[3:-3]))
+
+    return node
+
+
+def heading_to_html(block, level):
+    return HTMLNode(f"h{level}", block[level:])
+
+
+def block_to_html(block):
+    block_type, level = block_to_block_type(block)
+
+    match block_type:
+        case "quote":
+            return quote_to_html(block)
+        case "unordered_list":
+            return list_to_html(block, block_type)
+        case "ordered_list":
+            return list_to_html(block, block_type)
+        case "code":
+            return code_to_html(block)
+        case "heading":
+            return heading_to_html(block, level)
+        case _:
+            return HTMLNode("p", block)
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+
+    node = HTMLNode("div", children=[])
+
+    for block in blocks:
+        node.children.append(block_to_html(block))
+
+    return node
