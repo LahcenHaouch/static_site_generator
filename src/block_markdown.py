@@ -15,26 +15,26 @@ def block_to_block_type(block):
         return "heading", level
 
     elif is_block_code_block(block):
-        return "code"
+        return "code", None
 
     elif is_block_quote_block(block):
-        return "quote"
+        return "quote", None
 
     elif is_block_unordered_list(block):
-        return "unordered_list"
+        return "unordered_list", None
     elif is_block_ordered_list(block):
-        return "ordered_list"
+        return "ordered_list", None
 
-    return "paragraph"
+    return "paragraph", None
 
 
 def is_block_heading(block):
     if block[0] != "#":
-        return False
+        return False, None
 
     max = 7 if len(block) < 7 else len(block)
 
-    level = 0
+    level = 1
     for i in range(1, max):
         if block[i] == " ":
             return True, level
@@ -141,3 +141,37 @@ def markdown_to_html_node(markdown):
         node.children.append(block_to_html(block))
 
     return node
+
+
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        is_heading, level = is_block_heading(block)
+
+        if is_heading and level == 1:
+            return block[2:]
+
+    raise Exception("no h1 found")
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+
+    file = open(from_path)
+    file_content = file.read()
+    template_file = open(template_path)
+    template_content = template_file.read()
+
+    content = markdown_to_html_node(file_content).to_html()
+    title = extract_title(file_content)
+    template_content = template_content.replace("{{ Title }}", title)
+    template_content = template_content.replace("{{ Content }}", content)
+    print("template_content", template_content)
+
+    destination_file = open(dest_path, "w")
+    destination_file.write(template_content)
+
+    file.close()
+    template_file.close()
+    destination_file.close()
