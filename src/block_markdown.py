@@ -85,7 +85,8 @@ def is_block_ordered_list(block):
 
 
 def quote_to_html(quote):
-    return HTMLNode("blockquote", quote[1:])
+    print("quote", quote)
+    return HTMLNode("blockquote", "".join(quote.split("> ")))
 
 
 def list_to_html(block, list_type):
@@ -98,7 +99,7 @@ def list_to_html(block, list_type):
     lines = block.split("\n")
 
     for line in lines:
-        node.children.append(HTMLNode("li", line[1:]))
+        node.children.append(HTMLNode("li", line[1:] if tag == "ul" else line[3:]))
 
     return node
 
