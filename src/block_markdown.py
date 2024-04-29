@@ -105,7 +105,7 @@ def list_to_html(block, list_type):
 
 def code_to_html(block):
     node = HTMLNode("pre", children=[])
-    node.children.append(HTMLNode("code", block[3:-3]))
+    node.children.append(HTMLNode("code", "".join(block.split("```"))))
 
     return node
 

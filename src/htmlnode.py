@@ -10,10 +10,6 @@ class HTMLNode:
 
         children = ""
 
-        value = ""
-        if self.value is not None:
-            value = text_to_html(self.value)
-
         value = "" if self.value is None else text_to_html(self.value)
         if self.children is not None:
             for child in self.children:

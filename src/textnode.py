@@ -137,8 +137,6 @@ def text_to_html(text):
     text_nodes = text_to_text_nodes(text)
     value = ""
     for node in text_nodes:
-        if node.text_type == "image":
-            print("node")
         value += text_node_to_html_node(node)
 
     return value
