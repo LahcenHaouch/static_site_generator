@@ -21,26 +21,29 @@ class TextNode:
 
 
 def text_node_to_html_node(text_node):
+    leaf_node = None
     match text_node.text_type:
         case "text":
-            return LeafNode(value=text_node.text)
+            leaf_node = LeafNode(value=text_node.text)
         case "bold":
-            return LeafNode(tag="b", value=text_node.text)
+            leaf_node = LeafNode(tag="b", value=text_node.text)
         case "italic":
-            return LeafNode(tag="i", value=text_node.text)
+            leaf_node = LeafNode(tag="i", value=text_node.text)
         case "code":
-            return LeafNode(tag="code", value=text_node.text)
+            leaf_node = LeafNode(tag="code", value=text_node.text)
         case "link":
-            return LeafNode(
+            leaf_node = LeafNode(
                 tag="a", value=text_node.text, props={"href": text_node.url}
             )
         case "image":
-            return LeafNode(
+            leaf_node = LeafNode(
                 tag="img",
                 props={"src": text_node.url, "alt": text_node.text},
             )
         case _:
             raise Exception("WTF man!")
+
+    return leaf_node.to_html()
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -128,3 +131,12 @@ def text_to_text_nodes(text):
     with_italic_nodes = split_nodes_delimiter(with_bold_nodes, "*", "italic")
     with_images = split_nodes_image(with_italic_nodes)
     return split_nodes_link(with_images)
+
+
+def text_to_html(text):
+    text_nodes = text_to_text_nodes(text)
+    value = ""
+    for node in text_nodes:
+        value += text_node_to_html_node(node)
+
+    return value

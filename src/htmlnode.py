@@ -6,12 +6,20 @@ class HTMLNode:
         self.props = props
 
     def to_html(self):
+        from textnode import text_to_html
+
         children = ""
+
+        value = ""
+        if self.value is not None:
+            value = text_to_html(self.value)
+
+        value = "" if self.value is None else text_to_html(self.value)
         if self.children is not None:
             for child in self.children:
                 children += child.to_html()
 
-        return f"<{self.tag} {self.props_to_html()}>{self.value}{children}</{self.tag}>"
+        return f"<{self.tag} {self.props_to_html()}>{value}{children}</{self.tag}>"
 
     def props_to_html(self):
         if self.props is None:

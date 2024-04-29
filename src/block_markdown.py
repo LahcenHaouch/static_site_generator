@@ -167,7 +167,6 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(file_content)
     template_content = template_content.replace("{{ Title }}", title)
     template_content = template_content.replace("{{ Content }}", content)
-    print("template_content", template_content)
 
     destination_file = open(dest_path, "w")
     destination_file.write(template_content)
