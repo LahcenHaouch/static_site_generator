@@ -85,7 +85,6 @@ def is_block_ordered_list(block):
 
 
 def quote_to_html(quote):
-    print("quote", quote)
     return HTMLNode("blockquote", "".join(quote.split("> ")))
 
 
