@@ -153,24 +153,3 @@ def extract_title(markdown):
             return block[2:]
 
     raise Exception("no h1 found")
-
-
-def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
-
-    file = open(from_path)
-    file_content = file.read()
-    template_file = open(template_path)
-    template_content = template_file.read()
-
-    content = markdown_to_html_node(file_content).to_html()
-    title = extract_title(file_content)
-    template_content = template_content.replace("{{ Title }}", title)
-    template_content = template_content.replace("{{ Content }}", content)
-
-    destination_file = open(dest_path, "w")
-    destination_file.write(template_content)
-
-    file.close()
-    template_file.close()
-    destination_file.close()

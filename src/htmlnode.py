@@ -15,7 +15,13 @@ class HTMLNode:
             for child in self.children:
                 children += child.to_html()
 
-        return f"<{self.tag} {self.props_to_html()}>{value}{children}</{self.tag}>"
+        result = f"<{self.tag} props>{value}{children}</{self.tag}>"
+
+        return (
+            result.replace("props", self.props_to_html())
+            if self.props is not None
+            else result.replace(" props", "")
+        )
 
     def props_to_html(self):
         if self.props is None:
